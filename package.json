@@ -11,7 +11,10 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "dexie": "^3.2.4",
+    "lodash-es": "^4.17.21",
     "normalize.css": "^8.0.1",
+    "pinia": "^2.1.6",
     "sass": "^1.67.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"
@@ -19,6 +22,7 @@
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.4.0",
     "@tsconfig/node18": "^18.2.2",
+    "@types/lodash-es": "^4.17.9",
     "@types/node": "^20.6.2",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vue/eslint-config-typescript": "^12.0.0",
