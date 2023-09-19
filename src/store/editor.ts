@@ -1,8 +1,11 @@
 import { ref, shallowRef, triggerRef, watch, toValue, toRaw } from 'vue'
 import { defineStore } from 'pinia'
 import { debounce } from 'lodash-es'
+import Logger from 'reggol'
 import { db, type NicatFile } from './db'
 import type { Block } from '@/types'
+
+const log = new Logger('editor-store')
 
 export const useEditorStore = defineStore('editor', () => {
   const slot = ref<number>(1)
@@ -132,6 +135,7 @@ export const useEditorStore = defineStore('editor', () => {
 
     localStorage.setItem('slot', file.slot.toString())
     await db.files.put(file)
+    log.info(`Data saved to slot ${slot.value}`)
   }, 1000)
 
   const setSlot = async (next: number) => {
