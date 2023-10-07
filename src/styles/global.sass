@@ -1,3 +1,5 @@
+@use './variables' as vars
+
 // CSS Variables
 
 :root
@@ -7,10 +9,50 @@
   --color-sub-2: #d66853
 
   --color-black: #11151c
+  --color-gray: #8b95a7
   --color-white: #fff
+
+// Fonts
+
+
+@font-face
+  font-family: 'Open Sans'
+  src: url('/fonts/open-sans.woff2') format('woff2')
+  font-weight: 400
+  font-style: normal
+  font-display: swap
+
+@font-face
+  font-family: 'Open Sans'
+  src: url('/fonts/open-sans-medium.woff2') format('woff2')
+  font-weight: 500
+  font-style: normal
+  font-display: swap
+
+@font-face
+  font-family: 'Open Sans'
+  src: url('/fonts/open-sans-bold.woff2') format('woff2')
+  font-weight: 700
+  font-style: normal
+  font-display: swap
+
+@font-face
+  font-family: 'Open Sans'
+  src: url('/fonts/open-sans-italic.woff2') format('woff2')
+  font-weight: 400
+  font-style: italic
+  font-display: swap
+
+@font-face
+  font-family: 'Cascadia Code'
+  src: url('/fonts/cascadia-code.woff2') format('woff2-variations')
+  font-weight: 100 900
+  font-stretch: 75% 125%
+  font-style: oblique 0% 20%
 
 // Global styles
 
 body
-  font-family: sans-serif
-  font-size: 14px
+  font-family: vars.$sans-serif
+  font-size: 16px
+  line-height: 1.25rem
