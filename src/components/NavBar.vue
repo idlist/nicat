@@ -6,12 +6,20 @@ import logo_nicat from '@/assets/nicat.svg'
 <template>
   <nav class="nav-bar">
     <img class="nav-bar__logo" :src="logo_nicat" alt="nicat logo" />
-    <RouterLink class="nav-bar__link" to="/">Comparative Editor</RouterLink>
+    <RouterLink class="nav-bar__link" to="/">
+      <span class="nav-bar__full-name">Comparative&nbsp;</span>
+      <span>Editor</span>
+    </RouterLink>
   </nav>
 </template>
 
 <style lang="sass" scoped>
+@use '../styles/variables' as vars
+
 .nav-bar
+  position: fixed
+  top: 0
+  width: 100%
   height: 3rem
   display: flex
   align-items: center
@@ -35,6 +43,10 @@ import logo_nicat from '@/assets/nicat.svg'
 
     &:active
       background-color: rgba(255, 255, 255, 0.25)
+
+  &__full-name
+    @media (max-width: vars.$screen-sm)
+      display: none
 
   &__logo
     height: 2.5rem

@@ -2,16 +2,16 @@ type Lang = string
 
 interface BaseBlock {
   type: string
+  content: Record<Lang, string>
 }
 
 export interface TextBlock extends BaseBlock {
   type: 'text'
-  content: Record<Lang, string>
+  style?: string
 }
 
 export interface CommentBlock extends BaseBlock {
   type: 'comment'
-  content: Record<Lang, string>
 }
 
 export type Block =

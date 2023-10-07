@@ -111,13 +111,37 @@ export const useEditorStore = defineStore('editor', () => {
     }
 
     slot.value = parseInt(slotStored)
-    const files = await db.files.where('slot').equals(slot.value).limit(1).toArray()
-    if (!files.length) {
+    const file = await db.files.where('slot').equals(slot.value).first()
+    if (!file) {
       init()
       return
     }
 
-    const file = files[0]
+    name.value = file.name
+    langs.value = file.langs
+    content.value = file.content
+    trigger()
+  }
+
+  const copy = async (from: number, to?: number) => {
+    let dest: number
+
+    if (typeof to === 'undefined') {
+      dest = slot.value
+    } else {
+      dest = to
+    }
+
+    const file = await db.files.where('slot').equals(from).first()
+    if (!file) {
+      init()
+      return
+    }
+
+    await save()
+
+    slot.value = dest
+    localStorage.setItem('slot', slot.value.toString())
     name.value = file.name
     langs.value = file.langs
     content.value = file.content
@@ -145,13 +169,13 @@ export const useEditorStore = defineStore('editor', () => {
 
     await save()
 
-    const files = await db.files.where('slot').equals(next).limit(1).toArray()
-    if (!files.length) {
+    const file = await db.files.where('slot').equals(next).first()
+    if (!file) {
       init()
       return
     }
+
     localStorage.setItem('slot', slot.value.toString())
-    const file = files[0]
     name.value = file.name
     langs.value = file.langs
     content.value = file.content
@@ -177,6 +201,7 @@ export const useEditorStore = defineStore('editor', () => {
     init,
     clear,
     load,
+    copy,
     save,
   }
 })
