@@ -233,6 +233,7 @@ export const useEditorStore = defineStore('editor', () => {
 
   return {
     slot,
+    slotChange,
     name,
     langs,
     content,
@@ -245,6 +246,5 @@ export const useEditorStore = defineStore('editor', () => {
     save,
     load,
     copy,
-    slotChange,
   }
 })
