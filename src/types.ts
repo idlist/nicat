@@ -17,3 +17,9 @@ export interface CommentBlock extends BaseBlock {
 export type Block =
   | TextBlock
   | CommentBlock
+
+export interface RawLangData {
+  id: number
+  dict: Record<string, string>
+  order: number[]
+}

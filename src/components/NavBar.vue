@@ -6,7 +6,7 @@ import logo_nicat from '@/assets/nicat.svg'
 <template>
   <nav class="nav-bar">
     <img class="nav-bar__logo" :src="logo_nicat" alt="nicat logo" />
-    <RouterLink class="nav-bar__link" to="/">Sheet</RouterLink>
+    <RouterLink class="nav-bar__link" to="/">Translation Sheet</RouterLink>
   </nav>
 </template>
 

@@ -1,10 +1,10 @@
 import Dexie, { type Table } from 'dexie'
-import type { Block } from '@/types'
+import type { Block, RawLangData } from '@/types'
 
 export interface NicatFile {
   slot: number
   name: string
-  langs: string[]
+  langs: RawLangData
   content: Block[]
 }
 
