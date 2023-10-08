@@ -2,7 +2,7 @@
 
 NICAT isn't a computer assisted translator
 
-# Situation
+# Motivation
 
 有时候想做一些简短的翻译，懒得用正式的 CAT 软件开档案，而且想快速生成对比图。
 

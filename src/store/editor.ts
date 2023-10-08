@@ -52,6 +52,23 @@ export const useEditorStore = defineStore('editor', () => {
       trigger()
     },
 
+    move(id: number | string, direction: -1 | 1) {
+      id = langs._id(id)
+      const { order } = langs
+      const current = order.value.indexOf(id)
+
+      if (current == 0 && direction == -1) {
+        return
+      }
+      if (current == order.value.length - 1 && direction == 1) {
+        return
+      }
+
+      const next = current + direction
+      order.value.splice(current, 1)
+      order.value.splice(next, 0, id)
+    },
+
     rename(id: number | string, name: string) {
       const { dict } = langs
       dict.value[id] = name

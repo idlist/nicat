@@ -4,6 +4,8 @@ import { useEditorStore } from '@/store/editor'
 
 import icon_language from '@/assets/icons/language.svg'
 import icon_edit from '@/assets/icons/edit.svg'
+import icon_left from '@/assets/icons/left.svg'
+import icon_right from '@/assets/icons/right.svg'
 import icon_delete from '@/assets/icons/delete.svg'
 
 const sheet = ref<HTMLDivElement>()
@@ -17,7 +19,7 @@ watch([sheet, () => editor.langs.order.length], ([vm, length]) => {
   if (vm) {
     vm.style.gridTemplateColumns = `max-content ${'1fr '.repeat(length)}`
   }
-}, { immediate: true, flush: 'post' })
+}, { immediate: true })
 </script>
 
 <template>
@@ -44,6 +46,12 @@ watch([sheet, () => editor.langs.order.length], ([vm, length]) => {
           <div class="sheet-lang__text">{{ editor.langs.dict[id] }}</div>
           <a class="sheet-lang__action">
             <img class="icon-button" :src="icon_edit">
+          </a>
+          <a class="sheet-lang__action" @click="editor.langs.move(id, -1)">
+            <img class="icon-button" :src="icon_left">
+          </a>
+          <a class="sheet-lang__action" @click="editor.langs.move(id, 1)">
+            <img class="icon-button" :src="icon_right">
           </a>
           <a class="sheet-lang__action" @click="editor.langs.remove(id)">
             <img class="icon-button" :src="icon_delete">
