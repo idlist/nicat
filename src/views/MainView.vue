@@ -35,9 +35,7 @@ const confirmLangRename = (id: number) => {
 
 const sheetReset = () => {
   editor.init()
-
-  langRename.value = null
-  langRenameValue.value = ''
+  setLangRename()
 }
 </script>
 
@@ -234,7 +232,7 @@ const sheetReset = () => {
   justify-content: center
   width: 1.75rem
   height: 1.75rem
-  border-radius: 2rem
+  border-radius: 0.5rem
 
   &:hover
     background-color: rgba(0, 0, 0, 0.1)
