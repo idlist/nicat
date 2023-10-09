@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 
 const props = defineProps<{
@@ -30,6 +30,12 @@ const adjustTextAreaHeight = () => {
   }
 }
 
+watch(block, () => {
+  nextTick(() => {
+    adjustTextAreaHeight()
+  })
+})
+
 const onInput = (event: Event, id: number) => {
   const el = event.target as HTMLTextAreaElement
   block.value.content[id] = el.value
@@ -38,7 +44,7 @@ const onInput = (event: Event, id: number) => {
 }
 
 const onBlur = async () => {
-  await editor.trigger()
+  await editor.save()
   adjustTextAreaHeight()
 }
 
@@ -70,6 +76,7 @@ onMounted(() => {
   display: flex
   min-width: 0
   width: 100%
+  column-gap: 0.75rem
 
   & > *
     flex-basis: 0
@@ -83,9 +90,8 @@ onMounted(() => {
 .ta-item
   box-sizing: border-box
   width: 100%
-  margin: 0.25rem 0.5rem
   padding: 0.5rem
-  border: 1px solid var(--color-main)
+  border: 1px solid var(--color-main-2)
   border-radius: 0.5rem
   resize: none
   overflow: hidden

@@ -23,7 +23,7 @@ export const useLangStore = defineStore('lang', () => {
       block.content[id.value] = ''
     }
 
-    editor.trigger()
+    editor.save()
   }
 
   const remove = (id: number | string) => {
@@ -35,7 +35,7 @@ export const useLangStore = defineStore('lang', () => {
       delete block.content[id]
     }
 
-    editor.trigger()
+    editor.save()
   }
 
   const move = (which: number | string, direction: -1 | 1) => {
@@ -52,12 +52,14 @@ export const useLangStore = defineStore('lang', () => {
     const next = current + direction
     order.value.splice(current, 1)
     order.value.splice(next, 0, which)
+
+    editor.save()
   }
 
   const rename = (id: number | string, name: string) => {
     dict.value[id] = name
 
-    editor.trigger()
+    editor.save()
   }
 
   const reset = () => {

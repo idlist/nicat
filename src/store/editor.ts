@@ -15,11 +15,6 @@ export const useEditorStore = defineStore('editor', () => {
 
   const langs = useLangStore()
 
-  const trigger = async () => {
-    triggerRef(content)
-    await save()
-  }
-
   const empty = () => {
     return Object.fromEntries(Object.values(langs.dict).map((lang) => [lang, '']))
   }
@@ -37,29 +32,54 @@ export const useEditorStore = defineStore('editor', () => {
       })
     }
 
-    trigger()
+    save()
   }
 
   const rowRemove = (i: number) => {
     content.value.splice(i, 1)
-    trigger()
+    save()
   }
 
-  const rowTypeSet = (i: number, type: Block['type']) => {
+  // const rowMove = (i: number, direction: -1 | 1) => {
+  //   const current = { ...content.value[i] }
+  // }
+
+  const rowSetType = (i: number, type: Block['type']) => {
     content.value[i].type = type
-    trigger()
+    save()
+  }
+
+  const cleanUnused = () => {
+    content.value = content.value.filter((block) => {
+      let hasContent = false
+
+      for (const input of Object.values(block.content)) {
+        if (input.trim() != '') {
+          hasContent = true
+        }
+      }
+
+      return hasContent
+    })
+
+    if (content.value.length == 0) {
+      rowInsert()
+    }
+
+    save()
   }
 
   const reset = () => {
     content.value = []
     langs.reset()
-    trigger()
+    save()
   }
 
   const init = () => {
     content.value = []
     langs.init()
     rowInsert()
+    save()
   }
 
   const raw = (): NicatFile => {
@@ -80,13 +100,18 @@ export const useEditorStore = defineStore('editor', () => {
     localStorage.setItem('slot', slot.value.toString())
   }
 
-  const save = throttle(async () => {
+  const saveThrottled = throttle(async () => {
     const file = raw()
     localStorage.setItem('slot', file.slot.toString())
 
     await db.files.put(file)
     log.info(`Data saved to slot ${slot.value}`)
   }, 1000)
+
+  const save = () => {
+    triggerRef(content)
+    saveThrottled()
+  }
 
   const load = async () => {
     const slotStored = localStorage.getItem('slot')
@@ -104,7 +129,6 @@ export const useEditorStore = defineStore('editor', () => {
     }
 
     restore(file)
-    trigger()
   }
 
   const copy = async (from: number, to?: number) => {
@@ -119,7 +143,7 @@ export const useEditorStore = defineStore('editor', () => {
     }
 
     restore(file, to)
-    trigger()
+    save()
   }
 
   const slotChange = async (to: number) => {
@@ -136,7 +160,7 @@ export const useEditorStore = defineStore('editor', () => {
     }
 
     restore(file)
-    trigger()
+    save()
   }
 
   watch(name, async () => {
@@ -149,10 +173,10 @@ export const useEditorStore = defineStore('editor', () => {
     name,
     langs,
     content,
-    trigger,
     rowInsert,
     rowRemove,
-    rowTypeSet,
+    rowSetType,
+    cleanUnused,
     init,
     reset,
     save,
