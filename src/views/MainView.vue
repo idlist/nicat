@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
+import TextAreaGroup from '@/components/TextAreaGroup.vue'
 
 import icon_language from '@/assets/icons/language.svg'
 import icon_edit from '@/assets/icons/edit.svg'
@@ -11,12 +12,14 @@ import icon_down from '@/assets/icons/down.svg'
 import icon_delete from '@/assets/icons/delete.svg'
 
 const editor = useEditorStore()
-const langRename = ref<number | null>(null)
-const langRenameValue = ref<string>('')
 
 onMounted(async () => {
   await editor.load()
 })
+
+const langRename = ref<number | null>(null)
+const langRenameValue = ref<string>('')
+const langRenameInput = ref<HTMLInputElement[]>()
 
 const setLangRename = (id?: number) => {
   if (!id) {
@@ -25,6 +28,9 @@ const setLangRename = (id?: number) => {
   } else {
     langRename.value = id
     langRenameValue.value = editor.langs.dict[id]
+    nextTick(() => {
+      langRenameInput.value?.[0].focus()
+    })
   }
 }
 
@@ -52,7 +58,6 @@ const sheetReset = () => {
           placeholder="New sheet..." />
       </div>
 
-
       <div class="lang-manager">
         <div class="lang-manager__header">
           <span class="lang-manager__title">Languages</span>
@@ -64,7 +69,13 @@ const sheetReset = () => {
           <input
             v-if="langRename == id"
             v-model="langRenameValue"
-            class="lang-item__name-edit" />
+            ref="langRenameInput"
+            class="lang-item__name-edit"
+            @keyup="(event: KeyboardEvent) => {
+              if (event.key == 'Enter') {
+                confirmLangRename(id)
+              }
+            }" />
           <div
             v-if="langRename != id"
             class="lang-item__name">
@@ -101,23 +112,10 @@ const sheetReset = () => {
           </div>
         </div>
 
-        <template v-for="(block, i) of editor.content" :key="i">
+        <template v-for="(_, i) of editor.content" :key="i">
           <div class="sheet__index">#{{ i + 1 }}</div>
 
-          <div v-if="block.type == 'text'" class="sheet__table">
-            <label
-              class="sheet-text__wrapper"
-              v-for="id of editor.langs.order"
-              :key="id">
-              <textarea
-                class=sheet-text
-                rows="1"
-                autocomplete="off"
-                :value="block.content[id]"
-                @input="(event) => block.content[id] = (event.target as HTMLTextAreaElement)!.value"
-                @blur="editor.trigger()"></textarea>
-            </label>
-          </div>
+          <TextAreaGroup :index="i" />
         </template>
       </div>
     </div>
@@ -267,19 +265,6 @@ const sheetReset = () => {
     flex-basis: 0
     flex-grow: 1
     min-width: 0
-
-.sheet-text__wrapper
-  display: flex
-  padding: 0.25rem 0.5rem
-  min-width: 0
-
-.sheet-text
-  box-sizing: border-box
-  width: 100%
-  padding: 0.5rem
-  border: 1px solid var(--color-main)
-  border-radius: 0.5rem
-  resize: none
 
 .icon-language
   width: 1.5rem
