@@ -22,6 +22,8 @@ const actionAndClose = (fn: (...args: unknown[]) => unknown) => {
   fn()
   showTooltip.value = false
 }
+
+const moveTo = ref<number | string>('')
 </script>
 
 <template>
@@ -30,36 +32,51 @@ const actionAndClose = (fn: (...args: unknown[]) => unknown) => {
       <img class="icon-button" :src="icon_settings" alt="manage row">
     </a>
 
-    <div v-if="showTooltip" class="row-settings__tooltip-overlay" @click="showTooltip = false">
+    <div
+      v-if="showTooltip"
+      class="row-settings__tooltip-overlay"
+      @click="showTooltip = false">
     </div>
 
-    <div v-if="showTooltip" class="row-settings__tooltip" @click.stop>
+    <div
+      v-if="showTooltip"
+      class="row-settings__tooltip"
+      @click.stop>
       <a
         class="row-settings__action"
         @click="actionAndClose(() => editor.rowInsert(i))">
         <img class="icon-button" :src="icon_insert_row" alt="insert row below" />
         Insert below
       </a>
+
       <a
         v-if="i != 0"
-        class="row-settings__action">
+        class="row-settings__action"
+        @click="actionAndClose(() => editor.rowMove(i, -1))">
         <img class="icon-button" :src="icon_up" alt="move row up" />
         Move up
       </a>
+
       <a
         v-if="i != editor.content.length - 1"
-        class="row-settings__action">
+        class="row-settings__action"
+        @click="actionAndClose(() => editor.rowMove(i, 1))">
         <img class="icon-button" :src="icon_down" alt="move row down" />
         Move down
       </a>
+
       <div class="row-settings__action--readonly">
         <img class="icon-button" :src="icon_right" alt="move row to" />
         Move to
-        <input class="row-settings__move-to-input ml-auto" />
-        <a class="row-settings__move-to">
+        <input class="row-settings__move-to-input ml-auto" v-model.number="moveTo" />
+        <a
+          v-if="editor.content.length > 1"
+          class="row-settings__move-to"
+          @click="actionAndClose(() => editor.rowMoveTo(i, moveTo))">
           <img class="icon-button" :src="icon_tick" alt="confirm move row to">
         </a>
       </div>
+
       <a
         class="row-settings__action"
         @click="actionAndClose(() => editor.rowRemove(i))">

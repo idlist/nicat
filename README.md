@@ -14,7 +14,7 @@ NICAT isn't a computer assisted translator.
 
 ## Roadmap
 
-- [ ] 基于 `textarea` 的简单双语 / 多语分栏式编辑
+- [x] 基于 `textarea` 的简单双语 / 多语分栏式编辑
 - [ ] 基于 IndexedDB 的本地存储管理
 - [ ] 生成翻译对比图
 - [ ] 基于段落的简单样式

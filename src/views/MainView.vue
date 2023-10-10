@@ -1,9 +1,20 @@
 <script setup lang="ts">
 import { onMounted, ref, nextTick } from 'vue'
+import rasterizeHTML from 'rasterizehtml'
 import { useEditorStore } from '@/store/editor'
 import LanguageManager from '@/components/LanguageManager.vue'
 import RowSettings from '@/components/RowSettings.vue'
 import RowTextGroup from '@/components/RowTextGroup.vue'
+
+import NormalizeCSS from '@/../node_modules/normalize.css/normalize.css?inline'
+import GlobalStyle from '@/styles/global.sass?inline'
+import RenderStyle from '@/styles/render.sass?inline'
+import RenderColorMain from '@/styles/render-color/main.sass?inline'
+import SvgIconLanguage from '@/assets/icons/language.svg?raw'
+
+// import for test rendering, should not be included in production
+import '@/styles/render.sass'
+import '@/styles/render-color/main.sass'
 
 import icon_language from '@/assets/icons/language.svg'
 
@@ -14,12 +25,39 @@ onMounted(() => {
   editor.load()
 })
 
-const addRow = () => {
+const addRow = async () => {
   editor.rowInsert()
 
-  nextTick(() => {
-    addRowButton.value?.scrollIntoView()
-  })
+  await nextTick()
+  addRowButton.value?.scrollIntoView()
+}
+
+const renderArea = ref<HTMLDivElement>()
+const renderResult = ref<HTMLCanvasElement>()
+
+const renderSheet = async () => {
+  if (!renderArea.value || !renderResult.value) {
+    return
+  }
+
+  renderResult.value.width = renderArea.value.offsetWidth
+  renderResult.value.height = renderArea.value.offsetHeight
+
+  const html = /* html */ `
+<head>
+  <style type="text/css">${NormalizeCSS}</style>
+  <style type="text/css">${GlobalStyle}</style>
+  <style type="text/css">${RenderStyle}</style>
+  <style type="text/css">${RenderColorMain}</style>
+</head>
+<body>
+  ${renderArea.value.innerHTML}
+</body>
+`
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const result = await rasterizeHTML.drawHTML(html, renderResult.value)
+  // console.log(result.svg)
 }
 </script>
 
@@ -27,9 +65,7 @@ const addRow = () => {
   <main class="editor">
     <div class="editor__container">
       <div class="editor-title">
-        <div class="editor-title__slot-wrapper">
-          <div class="editor-title__slot">Slot <b>{{ editor.slot }}</b></div>
-        </div>
+        <div class="editor-title__sheet">Sheet <b>{{ editor.slot }}</b></div>
         <input
           class="editor-title__name"
           v-model="editor.name"
@@ -49,9 +85,11 @@ const addRow = () => {
         </div>
 
         <template v-for="(_, i) of editor.content" :key="i">
-          <div class="sheet-index">
-            <RowSettings :index="i" />
-            <div class="sheet-index__text ml-auto">#{{ i + 1 }}</div>
+          <div>
+            <div class="sheet-index">
+              <RowSettings :index="i" />
+              <div class="sheet-index__text ml-auto">#{{ i + 1 }}</div>
+            </div>
           </div>
 
           <RowTextGroup :index="i" />
@@ -72,6 +110,26 @@ const addRow = () => {
           </a>
         </div>
       </div>
+
+      <div ref="renderArea">
+        <div class="r__render-area">
+          <div class="r__sheet-name">{{ editor.name }}</div>
+
+          <div class="r__sheet">
+            <div class="r__sheet-index">
+              <div class="r__lang-icon" v-html="SvgIconLanguage"></div>
+            </div>
+            <div class="r__sheet-table">
+              <div class="r__lang" v-for="id of editor.langs.order" :key="id">
+                {{ editor.langs.dict[id] }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <a @click="renderSheet()">Render sheet</a>
+      <canvas ref="renderResult" class="render-result"></canvas>
     </div>
   </main>
 </template>
@@ -92,14 +150,10 @@ const addRow = () => {
 
 .editor-title
   margin: 1rem 0
-
-  & > *
-    margin: 0.5rem 0
-
-.editor-title__slot-wrapper
   display: flex
+  column-gap: 0.5rem
 
-.editor-title__slot
+.editor-title__sheet
   border-radius: 2rem
   padding: 0.25rem 1rem
   color: var(--color-white)
@@ -107,8 +161,8 @@ const addRow = () => {
 
 .editor-title__name
   display: block
+  flex-grow: 1
   min-width: 0
-  width: 100%
   box-sizing: border-box
   font-size: 1.25rem
   padding: 0.25rem 0.5rem
@@ -132,11 +186,13 @@ const addRow = () => {
   font-weight: bold
 
 .sheet-lang__icon
-  min-width: 2rem
-  text-align: center
+  display: flex
+  align-items: center
+  justify-content: center
   padding: 0.25rem 0.5rem
 
 .sheet-index
+  margin-top: 0.25rem
   display: flex
   row-gap: 0.25rem
   align-items: center
@@ -182,6 +238,9 @@ const addRow = () => {
 
     &:hover
       background-color: var(--color-red-2)
+
+.render-result
+  display: block
 
 .icon-language
   width: 1.5rem

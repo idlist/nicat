@@ -22,8 +22,9 @@ const setRename = (id?: number) => {
   } else {
     rename.value = id
     renameValue.value = editor.langs.dict[id]
+
     nextTick(() => {
-      renameInput.value?.[0].focus()
+      renameInput.value?.[0].select()
     })
   }
 }

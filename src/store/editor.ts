@@ -40,9 +40,38 @@ export const useEditorStore = defineStore('editor', () => {
     save()
   }
 
-  // const rowMove = (i: number, direction: -1 | 1) => {
-  //   const current = { ...content.value[i] }
-  // }
+  const rowMove = (i: number, direction: -1 | 1) => {
+    if (i == 0 && direction == -1) {
+      return
+    }
+    if (i == content.value.length - 1 && direction == 1) {
+      return
+    }
+
+    const to = i + direction
+    const temp = { ...content.value[i] }
+    content.value.splice(i, 1)
+    content.value.splice(to, 0, temp)
+
+    save()
+  }
+
+  const rowMoveTo = (i: number, to: number | string) => {
+    if (typeof to == 'string') {
+      return
+    }
+
+    to--
+    if (to < 0 || to >= content.value.length) {
+      return
+    }
+
+    const temp = { ...content.value[i] }
+    content.value.splice(i, 1)
+    content.value.splice(to, 0, temp)
+
+    save()
+  }
 
   const rowSetType = (i: number, type: Block['type']) => {
     content.value[i].type = type
@@ -151,7 +180,7 @@ export const useEditorStore = defineStore('editor', () => {
       return
     }
 
-    await save()
+    save()
 
     const file = await db.files.where('slot').equals(to).first()
     if (!file) {
@@ -163,8 +192,8 @@ export const useEditorStore = defineStore('editor', () => {
     save()
   }
 
-  watch(name, async () => {
-    await save()
+  watch(name, () => {
+    save()
   })
 
   return {
@@ -175,6 +204,8 @@ export const useEditorStore = defineStore('editor', () => {
     content,
     rowInsert,
     rowRemove,
+    rowMove,
+    rowMoveTo,
     rowSetType,
     cleanUnused,
     init,
