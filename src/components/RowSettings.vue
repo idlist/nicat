@@ -65,12 +65,13 @@ const moveTo = ref<number | string>('')
         Move down
       </a>
 
-      <div class="row-settings__action--readonly">
+      <div
+        v-if="editor.content.length > 1"
+        class="row-settings__action--readonly">
         <img class="icon-button" :src="icon_right" alt="move row to" />
         Move to
         <input class="row-settings__move-to-input ml-auto" v-model.number="moveTo" />
         <a
-          v-if="editor.content.length > 1"
           class="row-settings__move-to"
           @click="actionAndClose(() => editor.rowMoveTo(i, moveTo))">
           <img class="icon-button" :src="icon_tick" alt="confirm move row to">

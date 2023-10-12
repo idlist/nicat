@@ -43,5 +43,5 @@ import logo_nicat from '@/assets/nicat.svg'
 
   &__logo
     height: 2.5rem
-    transform: translateY(-2px)
+    transform: translateY(-0.125rem)
 </style>

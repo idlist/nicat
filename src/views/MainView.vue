@@ -5,12 +5,12 @@ import { useEditorStore } from '@/store/editor'
 import LanguageManager from '@/components/LanguageManager.vue'
 import RowSettings from '@/components/RowSettings.vue'
 import RowTextGroup from '@/components/RowTextGroup.vue'
+import RenderView from '@/components/RenderView.vue'
 
 import NormalizeCSS from '@/../node_modules/normalize.css/normalize.css?inline'
 import GlobalStyle from '@/styles/global.sass?inline'
 import RenderStyle from '@/styles/render.sass?inline'
 import RenderColorMain from '@/styles/render-color/main.sass?inline'
-import SvgIconLanguage from '@/assets/icons/language.svg?raw'
 
 // import for test rendering, should not be included in production
 import '@/styles/render.sass'
@@ -32,16 +32,28 @@ const addRow = async () => {
   addRowButton.value?.scrollIntoView()
 }
 
+const renderWidth = ref<number>(1024)
+const renderHeight = ref<number>(0)
+const scaleFactor = ref<number>(1)
+
+const isRendering = ref<boolean>(false)
 const renderArea = ref<HTMLDivElement>()
 const renderResult = ref<HTMLCanvasElement>()
 
 const renderSheet = async () => {
-  if (!renderArea.value || !renderResult.value) {
+  if (!renderResult.value) {
     return
   }
 
-  renderResult.value.width = renderArea.value.offsetWidth
-  renderResult.value.height = renderArea.value.offsetHeight
+  isRendering.value = true
+  await nextTick()
+
+  if (!renderArea.value) {
+    return
+  }
+
+  renderHeight.value = renderArea.value.offsetHeight
+  await nextTick()
 
   const html = /* html */ `
 <head>
@@ -56,8 +68,13 @@ const renderSheet = async () => {
 `
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const result = await rasterizeHTML.drawHTML(html, renderResult.value)
+  const result = await rasterizeHTML.drawHTML(html, renderResult.value, {
+    zoom: scaleFactor.value,
+  })
   // console.log(result.svg)
+
+  await nextTick()
+  isRendering.value = false
 }
 </script>
 
@@ -111,25 +128,24 @@ const renderSheet = async () => {
         </div>
       </div>
 
-      <div ref="renderArea">
-        <div class="r__render-area">
-          <div class="r__sheet-name">{{ editor.name }}</div>
+      <a @click="renderSheet()">Render sheet</a>
 
-          <div class="r__sheet">
-            <div class="r__sheet-index">
-              <div class="r__lang-icon" v-html="SvgIconLanguage"></div>
-            </div>
-            <div class="r__sheet-table">
-              <div class="r__lang" v-for="id of editor.langs.order" :key="id">
-                {{ editor.langs.dict[id] }}
-              </div>
-            </div>
-          </div>
-        </div>
+      <div
+        v-if="isRendering"
+        ref="renderArea"
+        class="render-area"
+        :style="{ width: `${renderWidth}px` }">
+        <RenderView />
       </div>
 
-      <a @click="renderSheet()">Render sheet</a>
-      <canvas ref="renderResult" class="render-result"></canvas>
+      <div class="render-result__wrapper">
+        <canvas
+          ref="renderResult"
+          class="render-result"
+          :width="renderWidth * scaleFactor"
+          :height="renderHeight * scaleFactor">
+        </canvas>
+      </div>
     </div>
   </main>
 </template>
@@ -160,12 +176,13 @@ const renderSheet = async () => {
   background-color: var(--color-main)
 
 .editor-title__name
-  display: block
   flex-grow: 1
   min-width: 0
   box-sizing: border-box
+  min-height: 2rem
   font-size: 1.25rem
-  padding: 0.25rem 0.5rem
+  padding: 0 0.5rem
+  color: var(--color-main)
   border: none
   border-bottom: 1px solid var(--color-main)
 
@@ -176,14 +193,18 @@ const renderSheet = async () => {
 .sheet
   display: grid
   grid-template-columns: max-content auto
-  row-gap: 0.5rem
-  column-gap: 0.5rem
+
+  & > *:nth-child(2n + 1)
+    border-right: 1px solid var(--color-sub)
 
 .sheet-lang
   display: flex
   align-items: center
   justify-content: center
   font-weight: bold
+
+  &:not(:last-child)
+    border-right: 1px solid var(--color-sub)
 
 .sheet-lang__icon
   display: flex
@@ -192,14 +213,16 @@ const renderSheet = async () => {
   padding: 0.25rem 0.5rem
 
 .sheet-index
-  margin-top: 0.25rem
   display: flex
   row-gap: 0.25rem
+  padding: 0.25rem 0.5rem
+  margin-top: 0.25rem
   align-items: center
   text-align: center
 
 .sheet-index__text
   font-weight: bold
+  color: var(--color-sub)
 
 .sheet-table
   display: flex
@@ -215,6 +238,7 @@ const renderSheet = async () => {
   display: flex
   align-items: center
   column-gap: 0.5rem
+  padding: 0.25rem 0.5rem
 
 .sheet-actions
   font-size: 0.875rem
@@ -239,8 +263,24 @@ const renderSheet = async () => {
     &:hover
       background-color: var(--color-red-2)
 
+.render-area
+  position: fixed
+  top: 0
+  visibility: hidden
+  pointer-events: none
+
+.render-result__wrapper
+  max-height: 80vh
+  padding: 1rem
+  border-radius: 0.5rem
+  border-color: var(--color-gray)
+  background-color: var(--color-nearly-white)
+
 .render-result
   display: block
+  width: 100%
+  border: 1px solid var(--color-main)
+  border-radius: 0.5rem
 
 .icon-language
   width: 1.5rem

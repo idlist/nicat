@@ -54,14 +54,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="block.type == 'text'" class="ta-group">
+  <div v-if="block.type == 'text'" class="rt-group">
     <label
-      class="ta-item__wrapper"
       v-for="id of editor.langs.order"
-      :key="id">
+      :key="id"
+      class="rt-item__wrapper">
       <textarea
         ref="columns"
-        class=ta-item
+        class=rt-item
         rows="1"
         autocomplete="off"
         :value="block.content[id]"
@@ -72,22 +72,22 @@ onMounted(() => {
 </template>
 
 <style lang="sass" scoped>
-.ta-group
+.rt-group
   display: flex
   min-width: 0
   width: 100%
-  column-gap: 0.75rem
 
-  & > *
-    flex-basis: 0
-    flex-grow: 1
-    min-width: 0
-
-.ta-item__wrapper
+.rt-item__wrapper
   display: flex
+  flex-basis: 0
+  flex-grow: 1
   min-width: 0
+  padding: 0.25rem 0.375rem
 
-.ta-item
+  &:not(:last-child)
+    border-right: 1px solid var(--color-sub)
+
+.rt-item
   box-sizing: border-box
   width: 100%
   padding: 0.5rem
