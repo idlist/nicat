@@ -2,6 +2,7 @@
 import { ref, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import IdButton from '@/components/IdButton.vue'
+import IdIconButton from '@/components/IdIconButton.vue'
 
 import icon_edit from '@/assets/icons/edit.svg'
 import icon_tick from '@/assets/icons/tick.svg'
@@ -42,7 +43,7 @@ const sheetReset = () => {
 </script>
 
 <template>
-  <div class="lang-manager">
+  <section class="lang-manager">
     <div class="lang-manager__header">
       <span class="lang-manager__title">Languages</span>
       <IdButton
@@ -74,51 +75,45 @@ const sheetReset = () => {
         class="lang-item__name">
         {{ editor.langs.dict[id] }}
       </div>
-      <a
+      <IdIconButton
         v-if="rename == id"
-        class="lang-item__action"
         @click="confirmRename(id)">
         <img class="icon-button" :src="icon_tick" alt="confirm edit name">
-      </a>
-      <a
+      </IdIconButton>
+      <IdIconButton
         v-if="rename == id"
-        class="lang-item__action"
         @click="setRename()">
         <img class="icon-button" :src="icon_cross" alt="cancel edit name">
-      </a>
-      <a
+      </IdIconButton>
+      <IdIconButton
         v-if="rename != id"
-        class="lang-item__action"
         @click="setRename(id)">
         <img class="icon-button" :src="icon_edit" alt="edit name">
-      </a>
-      <a
+      </IdIconButton>
+      <IdIconButton
         v-if="index != 0"
-        class="lang-item__action"
         @click="editor.langs.move(id, -1)">
         <img class="icon-button" :src="icon_up" alt="move language up">
-      </a>
+      </IdIconButton>
       <div
         v-if="index == 0"
         class="lang-item__action-placeholder">
       </div>
-      <a
+      <IdIconButton
         v-if="index != editor.langs.order.length - 1"
-        class="lang-item__action"
         @click="editor.langs.move(id, 1)">
         <img class="icon-button" :src="icon_down" alt="move language down">
-      </a>
+      </IdIconButton>
       <div
         v-if="index == editor.langs.order.length - 1"
         class="lang-item__action-placeholder">
       </div>
-      <a
-        class="lang-item__action"
+      <IdIconButton
         @click="editor.langs.remove(id)">
         <img class="icon-button" :src="icon_delete" alt="delete language">
-      </a>
+      </IdIconButton>
     </div>
-  </div>
+  </section>
 </template>
 
 <style lang="sass" scoped>
@@ -159,17 +154,6 @@ const sheetReset = () => {
   padding: 0.25rem 0
   flex-grow: 1
   border-bottom: 1px solid var(--color-gray)
-
-.lang-item__action
-  display: flex
-  align-items: center
-  justify-content: center
-  width: 1.75rem
-  height: 1.75rem
-  border-radius: 0.5rem
-
-  &:hover
-    background-color: rgba(0, 0, 0, 0.1)
 
 .lang-item__action-placeholder
   width: 1.75rem
