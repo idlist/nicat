@@ -6,6 +6,7 @@ import LanguageManager from './LanguageManager.vue'
 import RowSettings from './RowSettings.vue'
 import RowTextGroup from './RowTextGroup.vue'
 import RenderView from './RenderView.vue'
+import IdButton from '@/components/IdButton.vue'
 
 import NormalizeCSS from '@/../node_modules/normalize.css/normalize.css?inline'
 import GlobalStyle from '@/styles/global.sass?inline'
@@ -101,7 +102,7 @@ const renderSheet = async () => {
           </div>
         </div>
 
-        <template v-for="(_, i) of editor.content" :key="i">
+        <template v-for="(block, i) of editor.content" :key="i">
           <div>
             <div class="sheet-index">
               <RowSettings :index="i" />
@@ -109,26 +110,29 @@ const renderSheet = async () => {
             </div>
           </div>
 
-          <RowTextGroup :index="i" />
+          <template v-if="block.type == 'text'" >
+            <RowTextGroup :index="i" />
+          </template>
         </template>
 
         <div></div>
         <div class="sheet-actions__list">
-          <a
+          <IdButton
             ref="addRowButton"
-            class="sheet-actions--success"
-            @click="addRow">
+            type="success"
+            @click="addRow()">
             Add new row
-          </a>
-          <a
-            class="sheet-actions--error ml-auto"
+          </IdButton>
+          <IdButton
+            type="error"
+            class="ml-auto"
             @click="editor.cleanUnused()">
             Clean unused rows
-          </a>
+          </IdButton>
         </div>
       </div>
 
-      <a @click="renderSheet()">Render sheet</a>
+      <IdButton @click="renderSheet()">Render sheet</IdButton>
 
       <div
         v-if="isRendering"
@@ -239,29 +243,6 @@ const renderSheet = async () => {
   align-items: center
   column-gap: 0.5rem
   padding: 0.25rem 0.5rem
-
-.sheet-actions
-  font-size: 0.875rem
-  padding: 0.25rem 0.75rem
-  border-radius: 2rem
-
-  &--success
-    @extend .sheet-actions
-
-    color: var(--color-white)
-    background-color: var(--color-green)
-
-    &:hover
-      background-color: var(--color-green-2)
-
-  &--error
-    @extend .sheet-actions
-
-    color: var(--color-white)
-    background-color: var(--color-red)
-
-    &:hover
-      background-color: var(--color-red-2)
 
 .render-area
   position: fixed

@@ -30,7 +30,7 @@ const adjustTextAreaHeight = () => {
   }
 }
 
-watch(block, () => {
+watch(editor, () => {
   nextTick(() => {
     adjustTextAreaHeight()
   })
@@ -44,7 +44,7 @@ const onInput = (event: Event, id: number) => {
 }
 
 const onBlur = async () => {
-  await editor.save()
+  editor.save()
   adjustTextAreaHeight()
 }
 
@@ -54,7 +54,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="block.type == 'text'" class="rt-group">
+  <div class="rt-group">
     <label
       v-for="id of editor.langs.order"
       :key="id"

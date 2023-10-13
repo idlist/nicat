@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
+import IdButton from '@/components/IdButton.vue'
 
 import icon_edit from '@/assets/icons/edit.svg'
 import icon_tick from '@/assets/icons/tick.svg'
@@ -44,16 +45,17 @@ const sheetReset = () => {
   <div class="lang-manager">
     <div class="lang-manager__header">
       <span class="lang-manager__title">Languages</span>
-      <a
-        class="lang-manager__button--success"
+      <IdButton
+        type="success"
         @click="editor.langs.add()">
-        Add language
-      </a>
-      <a
-        class="lang-manager__button--error ml-auto"
+        Add Language
+      </IdButton>
+      <IdButton
+        type="error"
+        class="ml-auto"
         @click="sheetReset()">
         Reset
-      </a>
+      </IdButton>
     </div>
 
     <div class="lang-item" v-for="(id, index) of editor.langs.order" :key="id">
@@ -134,29 +136,6 @@ const sheetReset = () => {
 .lang-manager__title
   font-weight: bold
   margin-right: 0.25rem
-
-.lang-manager__button
-  font-size: 0.875rem
-  padding: 0.25rem 0.75rem
-  border-radius: 2rem
-
-  &--success
-    @extend .lang-manager__button
-
-    color: var(--color-white)
-    background-color: var(--color-green)
-
-    &:hover
-      background-color: var(--color-green-2)
-
-  &--error
-    @extend .lang-manager__button
-
-    color: var(--color-white)
-    background-color: var(--color-red)
-
-    &:hover
-      background-color: var(--color-red-2)
 
 .lang-item
   display: flex
