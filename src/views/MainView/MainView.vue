@@ -2,10 +2,10 @@
 import { onMounted, ref, nextTick } from 'vue'
 import rasterizeHTML from 'rasterizehtml'
 import { useEditorStore } from '@/store/editor'
-import LanguageManager from '@/components/LanguageManager.vue'
-import RowSettings from '@/components/RowSettings.vue'
-import RowTextGroup from '@/components/RowTextGroup.vue'
-import RenderView from '@/components/RenderView.vue'
+import LanguageManager from './LanguageManager.vue'
+import RowSettings from './RowSettings.vue'
+import RowTextGroup from './RowTextGroup.vue'
+import RenderView from './RenderView.vue'
 
 import NormalizeCSS from '@/../node_modules/normalize.css/normalize.css?inline'
 import GlobalStyle from '@/styles/global.sass?inline'
@@ -151,7 +151,7 @@ const renderSheet = async () => {
 </template>
 
 <style lang="sass" scoped>
-@use '../styles/variables' as vars
+@use '@/styles/variables' as vars
 
 .editor
   margin-top: 3rem

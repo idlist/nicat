@@ -1,6 +1,6 @@
 # NICAT
 
-NICAT isn't a computer assisted translator.
+NICAT **isn't** a computer assisted translator.
 
 ## Motivation
 
@@ -8,15 +8,16 @@ NICAT isn't a computer assisted translator.
 
 搜了一下好像没看到这样的小工具，遂开始重复造轮。
 
-## Non-feature
+## Not in the plan
 
 - 机器辅助翻译，因为这不是一个机器辅助翻译应用
+- 行内样式，因为这个做起来太复杂了
 
 ## Roadmap
 
 - [x] 基于 `textarea` 的简单双语 / 多语分栏式编辑
 - [ ] 基于 IndexedDB 的本地存储管理
-- [ ] 生成翻译对比图
+- [x] 生成翻译对比图
 - [ ] 基于段落的简单样式
 - [ ] 移动端适配
 - [ ] 支持导入、导出
