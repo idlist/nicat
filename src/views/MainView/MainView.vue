@@ -283,6 +283,7 @@ const downloadCanvas = () => {
                 <div>Default <span class="text-sub">(1024px)</span></div>
               </IdRadio>
               <IdRadio
+                v-if="isLargeScreen"
                 :checked="renderWidthType == 'sheet-width'"
                 @click="renderWidthType = 'sheet-width'">
                 <div>Use Sheet Width <span class="text-sub">({{ sheetWidth }}px)</span></div>
