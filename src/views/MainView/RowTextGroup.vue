@@ -94,6 +94,9 @@ onMounted(() => {
   &:not(:last-child)
     border-right: 1px solid var(--color-sub)
 
+  @media (max-width: vars.$screen-sm)
+    border: none
+
 .rt-item__lang
   display: none
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, nextTick, watch, computed } from 'vue'
 import rasterizeHTML from 'rasterizehtml'
+import { saveAs } from 'file-saver'
 import { useEditorStore } from '@/store/editor'
 import useMediaQuery, { SCREEN_LG } from '@/use/mediaQuery'
 import useWidowSize from '@/use/windowSize'
@@ -149,6 +150,23 @@ const renderSheet = async () => {
 
   await nextTick()
   isRendering.value = false
+}
+
+const downloadCanvas = () => {
+  if (!renderResult.value) {
+    return
+  }
+
+  renderResult.value.toBlob((blob) => {
+    if (!blob) {
+      return
+    }
+    let name = `Sheet ${editor.slot}`
+    if (editor.name) {
+      name += ` - ${editor.name}`
+    }
+    saveAs(blob, name)
+  })
 }
 </script>
 
@@ -351,6 +369,10 @@ const renderSheet = async () => {
           width="0"
           height="32">
         </canvas>
+
+        <div class="render-result__download">
+          <IdButton @click="downloadCanvas()">Download</IdButton>
+        </div>
       </section>
     </div>
   </main>
@@ -393,6 +415,7 @@ const renderSheet = async () => {
   color: var(--color-main)
   border: none
   border-bottom: 1px solid var(--color-main)
+  border-radius: 0
 
   &::placeholder
     font-style: italic
@@ -554,6 +577,11 @@ const renderSheet = async () => {
   width: 100%
   border: 1px solid var(--color-main)
   border-radius: 0.5rem
+
+.render-result__download
+  margin-top: 0.5rem
+  display: flex
+  justify-content: end
 
 .icon-language
   width: 1.5rem
