@@ -120,7 +120,6 @@ const sheetReset = () => {
 .lang-manager
   border-radius: 0.5rem
   padding: 0.75rem 1rem
-  margin: 1rem 0
   background-color: var(--color-nearly-white)
 
 .lang-manager__header

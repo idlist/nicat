@@ -219,7 +219,7 @@ const renderSheet = async () => {
 
           <div>
             <div class="settings__description">
-              <p>Set the width of the sheet.</p>
+              <p>The width of the sheet.</p>
               <p>The minimum width is 800px, and the maximum width is the width of the screen ({{ width }}px).</p>
             </div>
 
@@ -255,7 +255,7 @@ const renderSheet = async () => {
 
           <div>
             <div class="settings__description">
-              <p>Set the width of the rendered image. The minimum width is 800px.</p>
+              <p>The width of the rendered image. The minimum width is 800px.</p>
             </div>
 
             <div class="settings__options">
@@ -290,7 +290,7 @@ const renderSheet = async () => {
 
           <div>
             <div class="settings__description">
-              <p>Set the scale factor of the image.</p>
+              <p>The scale factor of the image.</p>
               <p>
                 The width of the render result would be
                 {{ renderWidth }}px * {{ scaleFactor }} = {{ renderWidth * scaleFactor }}px.
@@ -310,7 +310,7 @@ const renderSheet = async () => {
 
           <div>
             <div class="settings__description">
-              <p>Set if the index (#1, #2...) should be rendered in the result.</p>
+              <p>If the index (#1, #2...) should be rendered in the result.</p>
             </div>
 
             <div class="settings__options">
@@ -329,7 +329,11 @@ const renderSheet = async () => {
         </section>
       </section>
 
-      <IdButton @click="renderSheet()">Render sheet</IdButton>
+      <section class="render-button">
+        <IdButton type="sub" size="large" @click="renderSheet()">
+          Render sheet
+        </IdButton>
+      </section>
 
       <section
         v-if="isRendering"
@@ -339,8 +343,14 @@ const renderSheet = async () => {
         <RenderView :render-index="renderIndex" />
       </section>
 
-      <section class="render-result__wrapper">
-        <canvas ref="renderResult" class="render-result" width="0" height="0">
+      <section class="render-result">
+        <div class="render-result__title">Render Result</div>
+
+        <canvas
+          ref="renderResult"
+          class="render-result__result"
+          width="0"
+          height="32">
         </canvas>
       </section>
     </div>
@@ -361,8 +371,10 @@ const renderSheet = async () => {
   max-width: vars.$screen-lg
   padding: 0.5rem
 
+  & > section
+    margin: 1rem 0
+
 .editor-title
-  margin: 1rem 0
   display: flex
   column-gap: 0.5rem
 
@@ -443,10 +455,9 @@ const renderSheet = async () => {
   bottom: -0.25rem
 
 .settings
-  margin: 1rem 0
-  background-color: var(--color-nearly-white)
   padding: 0.75rem 1rem
   border-radius: 0.5rem
+  background-color: var(--color-nearly-white)
 
   & > *:not(:first-child)
     margin-top: 0.5rem
@@ -502,20 +513,28 @@ const renderSheet = async () => {
   @extend .settings-option__input
   width: 6rem
 
+.render-button
+  display: flex
+  justify-content: center
+
 .render-area
   position: fixed
   top: 0
   visibility: hidden
   pointer-events: none
 
-.render-result__wrapper
+.render-result
   max-height: 80vh
   padding: 1rem
   border-radius: 0.5rem
   border-color: var(--color-gray)
   background-color: var(--color-nearly-white)
 
-.render-result
+.render-result__title
+  font-weight: bold
+  margin-bottom: 0.5rem
+
+.render-result__result
   display: block
   width: 100%
   border: 1px solid var(--color-main)
