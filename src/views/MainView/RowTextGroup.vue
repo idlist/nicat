@@ -94,8 +94,8 @@ onMounted(() => {
   &:not(:last-child)
     border-right: 1px solid var(--color-sub)
 
-  @media (max-width: vars.$screen-sm)
-    border: none
+    @media (max-width: vars.$screen-sm)
+      border: none
 
 .rt-item__lang
   display: none
@@ -110,7 +110,8 @@ onMounted(() => {
   display: block
   box-sizing: border-box
   width: 100%
-  padding: 0.5rem
+  padding: 0.375rem 0.5rem
+  line-height: 1.5rem
   border: 1px solid var(--color-main-2)
   border-radius: 0.5rem
   resize: none
