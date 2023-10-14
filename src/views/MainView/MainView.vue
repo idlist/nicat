@@ -350,7 +350,7 @@ const downloadCanvas = () => {
 
       <section class="render-button">
         <IdButton size="large" @click="renderSheet()">
-          Render sheet
+          Render Sheet
         </IdButton>
       </section>
 
