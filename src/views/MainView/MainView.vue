@@ -146,7 +146,8 @@ const renderSheet = async () => {
   const result = await rasterizeHTML.drawHTML(html, renderResult.value, {
     zoom: scaleFactor.value,
   })
-  // console.log(result.svg)
+  const ctx = renderResult.value.getContext('2d')!
+  ctx.drawImage(result.image, 0, 0, renderResult.value.width, renderResult.value.height)
 
   await nextTick()
   isRendering.value = false
@@ -347,7 +348,7 @@ const downloadCanvas = () => {
       </section>
 
       <section class="render-button">
-        <IdButton type="sub" size="large" @click="renderSheet()">
+        <IdButton size="large" @click="renderSheet()">
           Render sheet
         </IdButton>
       </section>
@@ -576,7 +577,6 @@ const downloadCanvas = () => {
   display: block
   width: 100%
   border: 1px solid var(--color-main)
-  border-radius: 0.5rem
 
 .render-result__download
   margin-top: 0.5rem
