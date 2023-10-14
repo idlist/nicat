@@ -59,6 +59,9 @@ onMounted(() => {
       v-for="id of editor.langs.order"
       :key="id"
       class="rt-item__wrapper">
+      <div class="rt-item__lang">
+        {{ editor.langs.dict[id] }}
+      </div>
       <textarea
         ref="columns"
         class=rt-item
@@ -72,13 +75,17 @@ onMounted(() => {
 </template>
 
 <style lang="sass" scoped>
+@use '@/styles/variables' as vars
+
 .rt-group
   display: flex
   min-width: 0
   width: 100%
 
+  @media (max-width: vars.$screen-sm)
+    display: grid
+
 .rt-item__wrapper
-  display: flex
   flex-basis: 0
   flex-grow: 1
   min-width: 0
@@ -87,7 +94,17 @@ onMounted(() => {
   &:not(:last-child)
     border-right: 1px solid var(--color-sub)
 
+.rt-item__lang
+  display: none
+
+  @media (max-width: vars.$screen-sm)
+    display: block
+    margin-bottom: 0.25rem
+    font-size: 0.875rem
+    color: var(--color-sub)
+
 .rt-item
+  display: block
   box-sizing: border-box
   width: 100%
   padding: 0.5rem

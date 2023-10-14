@@ -171,7 +171,7 @@ const renderSheet = async () => {
         <div class="sheet-lang__icon">
           <img class="icon-language" :src="icon_language" alt="language">
         </div>
-        <div class="sheet-table">
+        <div class="sheet-lang__list">
           <div class="sheet-lang" v-for="id of editor.langs.order" :key="id">
             {{ editor.langs.dict[id] }}
           </div>
@@ -184,7 +184,6 @@ const renderSheet = async () => {
               <div class="sheet-index__text ml-auto">#{{ i + 1 }}</div>
             </div>
           </div>
-
           <template v-if="block.type == 'text'">
             <RowTextGroup :index="i" />
           </template>
@@ -415,11 +414,36 @@ const renderSheet = async () => {
   &:not(:last-child)
     border-right: 1px solid var(--color-sub)
 
+.sheet__sticky
+  position: sticky
+  top: 3rem
+  background-color: var(--color-white)
+  border-bottom: 1px solid var(--color-sub)
+  z-index: 1
+
 .sheet-lang__icon
+  @extend .sheet__sticky
   display: flex
   align-items: center
   justify-content: center
   padding: 0.25rem 0.5rem
+
+  @media (max-width: vars.$screen-sm)
+    display: none
+
+.sheet-lang__list
+  @extend .sheet__sticky
+  display: flex
+  min-width: 0
+  width: 100%
+
+  & > *
+    flex-basis: 0
+    flex-grow: 1
+    min-width: 0
+
+  @media (max-width: vars.$screen-sm)
+    display: none
 
 .sheet-index
   display: flex
@@ -433,19 +457,10 @@ const renderSheet = async () => {
   font-weight: bold
   color: var(--color-sub)
 
-.sheet-table
-  display: flex
-  min-width: 0
-  width: 100%
-
-  & > *
-    flex-basis: 0
-    flex-grow: 1
-    min-width: 0
-
 .sheet-actions__list
   position: relative
   display: flex
+  flex-wrap: wrap
   align-items: center
   column-gap: 0.5rem
   padding: 0.25rem 0.5rem
@@ -483,7 +498,7 @@ const renderSheet = async () => {
 .settings__description
   margin-top: 0.25rem
   font-size: 0.875rem
-  margin-bottom: 0.25rem
+  margin-bottom: 0.5rem
   color: var(--color-main-2)
 
 .settings__field
