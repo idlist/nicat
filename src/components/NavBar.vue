@@ -23,6 +23,7 @@ import logo_nicat from '@/assets/nicat.svg'
 
   color: var(--color-white)
   background-color: var(--color-main)
+  z-index: 10
 
   & > *
     height: 3rem

@@ -27,6 +27,7 @@ const postfix = (type?: ButtonType) => {
   border-radius: 2rem
   color: var(--color-white)
   background-color: var(--color-main)
+  user-select: none
 
   &:hover
     background-color: var(--color-main-2)

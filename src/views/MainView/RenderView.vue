@@ -4,8 +4,17 @@ import { useEditorStore } from '@/store/editor'
 import InlineIconLanguage from '@/assets/icons-inline/language.svg?raw'
 import InlineIconSheet from '@/assets/icons-inline/sheet.svg?raw'
 import InlineIconNicat from '@/assets/icons-inline/nicat.svg?raw'
+import { computed } from 'vue'
 
 const editor = useEditorStore()
+
+const props = defineProps<{
+  renderIndex?: boolean
+}>()
+
+const renderIndex = computed(() => {
+  return props.renderIndex ?? true
+})
 </script>
 
 <template>
@@ -15,18 +24,18 @@ const editor = useEditorStore()
       <div class="r__sheet-name">{{ editor.name }}</div>
     </div>
 
-    <div class="r__sheet">
-      <div class="r__lang-icon">
+    <div :class="{ 'r__sheet': true, 'r__sheet-with-index': renderIndex }">
+      <div v-if="renderIndex" class="r__lang-icon">
         <div class="r__lang-icon__img" role="img" v-html="InlineIconLanguage"></div>
       </div>
       <div class="r__sheet-table">
-        <div class="r__lang" v-for="id of editor.langs.order" :key="id">
+        <div v-for="id of editor.langs.order" :key="id" class="r__lang">
           {{ editor.langs.dict[id] }}
         </div>
       </div>
 
       <template v-for="(block, i) of editor.content" :key="i">
-        <div class="r__sheet-index">#{{ i + 1 }}</div>
+        <div v-if="renderIndex" class="r__sheet-index">#{{ i + 1 }}</div>
 
         <div
           v-if="block.type == 'text'"

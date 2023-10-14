@@ -18,6 +18,7 @@ defineProps<{
   display: flex
   align-items: center
   column-gap: 0.5rem
+  min-height: calc(1.75rem + 2px)
   cursor: pointer
 
   &:hover

@@ -1,4 +1,4 @@
-import { ref, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 export const SCREEN_SM = 576
 export const SCREEN_MD = 768
@@ -12,7 +12,9 @@ const useMediaQuery = (query: string) => {
     matches.value = event.matches
   }
 
-  mql.addEventListener('change', listener)
+  onMounted(() => {
+    mql.addEventListener('change', listener)
+  })
 
   onUnmounted(() => {
     mql.removeEventListener('change', listener)

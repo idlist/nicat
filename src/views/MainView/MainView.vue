@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, nextTick } from 'vue'
+import { onMounted, ref, nextTick, watch, computed } from 'vue'
 import rasterizeHTML from 'rasterizehtml'
 import { useEditorStore } from '@/store/editor'
 import useMediaQuery, { SCREEN_LG } from '@/use/mediaQuery'
+import useWidowSize from '@/use/windowSize'
 
 import LanguageManager from './LanguageManager.vue'
 import RowSettings from './RowSettings.vue'
@@ -39,36 +40,72 @@ const addRow = async () => {
 }
 
 const isLargeScreen = useMediaQuery(`(min-width: ${SCREEN_LG}px)`)
+const { width } = useWidowSize()
 
-const defaultWidth = 1024
-const minWidth = 800
-const isDefaultWidth = ref<boolean>(true)
-const customWidth = ref<number | string>(defaultWidth)
-const sheetWidth = ref<number>(defaultWidth)
+const sheetWidthDefault = 1024
+const sheetWidthMin = 800
+const useDefaultSheetWidth = ref<boolean>(true)
+const sheetWidthCustom = ref<number | string>(sheetWidthDefault)
+const sheetWidth = ref<number>(sheetWidthDefault)
 
-const setDefaultWidth = () => {
-  isDefaultWidth.value = true
-  sheetWidth.value = defaultWidth
-}
-
-const setCustomWidth = () => {
-  if (isDefaultWidth.value || typeof customWidth.value == 'string') {
+const setCustomSheetWidth = () => {
+  if (useDefaultSheetWidth.value || typeof sheetWidthCustom.value == 'string') {
     return
-  }
-  else if (customWidth.value < minWidth) {
-    sheetWidth.value = minWidth
-  }
-  else if (customWidth.value > window.innerWidth) {
-    sheetWidth.value = window.innerWidth
-  }
-  else {
-    sheetWidth.value = customWidth.value
+  } else if (sheetWidthCustom.value < sheetWidthMin) {
+    sheetWidth.value = sheetWidthMin
+  } else if (sheetWidthCustom.value > width.value) {
+    sheetWidth.value = width.value
+  } else {
+    sheetWidth.value = sheetWidthCustom.value
   }
 }
 
-const renderWidth = ref<number>(defaultWidth)
+watch(useDefaultSheetWidth, (next) => {
+  if (next == true) {
+    sheetWidth.value = sheetWidthDefault
+  } else {
+    setCustomSheetWidth()
+  }
+})
+
+type RenderWidthType = 'default' | 'sheet-width' | 'custom'
+
+const renderWidthDefault = 1024
+const renderWidthMin = sheetWidthMin
+const renderWidthCustom = ref<number | string>(renderWidthDefault)
+const renderWidthType = ref<RenderWidthType>('default')
+
+const renderWidth = computed<number>(() => {
+  if (renderWidthType.value == 'default') {
+    return renderWidthDefault
+  } else if (renderWidthType.value == 'sheet-width') {
+    return sheetWidth.value
+  } else {
+    if (typeof renderWidthCustom.value == 'string') {
+      return renderWidthDefault
+    } else if (renderWidthCustom.value < renderWidthMin) {
+      return renderWidthMin
+    } else {
+      return renderWidthCustom.value
+    }
+  }
+})
+
 const renderHeight = ref<number>(0)
-const scaleFactor = ref<number>(1)
+
+const scaleFactorInput = ref<number | string>(1)
+
+const scaleFactor = computed<number>(() => {
+  if (typeof scaleFactorInput.value == 'string') {
+    return 1
+  } else if (scaleFactorInput.value <= 0) {
+    return 1
+  } else {
+    return scaleFactorInput.value
+  }
+})
+
+const renderIndex = ref<boolean>(true)
 
 const isRendering = ref<boolean>(false)
 const renderArea = ref<HTMLDivElement>()
@@ -88,6 +125,9 @@ const renderSheet = async () => {
 
   renderHeight.value = renderArea.value.offsetHeight
   await nextTick()
+
+  renderResult.value.width = renderWidth.value * scaleFactor.value
+  renderResult.value.height = renderHeight.value * scaleFactor.value
 
   const html = /* html */ `
 <head>
@@ -168,38 +208,125 @@ const renderSheet = async () => {
       </section>
 
       <section class="settings">
-        <div
-          v-if="isLargeScreen"
-          class="settings__title">
-          Sheet Settings
+        <div v-if="isLargeScreen">
+          <div class="settings__title">Sheet Settings</div>
         </div>
 
-        <section
-          v-if="isLargeScreen"
-          class="settings__section">
-          <div>Sheet Width</div>
-          <div class="settings-width">
-            <IdRadio
-              :checked="isDefaultWidth"
-              @click="setDefaultWidth()">
-              Default (1024px)
-            </IdRadio>
-            <IdRadio
-              :checked="!isDefaultWidth"
-              @click="isDefaultWidth = false">
-              Custom
-              <input
-                class="settings-width__input"
-                v-model.number="customWidth"
-                :readonly="isDefaultWidth" />
-              <IdIconButton @click="setCustomWidth()">
-                <img :src="icon_tick" alt="confirm custom width" />
-              </IdIconButton>
-            </IdRadio>
+        <section v-if="isLargeScreen">
+          <div>
+            <div class="settings__field">Sheet Width</div>
+          </div>
+
+          <div>
+            <div class="settings__description">
+              <p>Set the width of the sheet.</p>
+              <p>The minimum width is 800px, and the maximum width is the width of the screen ({{ width }}px).</p>
+            </div>
+
+            <div class="settings__options">
+              <IdRadio
+                :checked="useDefaultSheetWidth"
+                @click="useDefaultSheetWidth = true">
+                <div>Default <span class="text-sub">(1024px)</span></div>
+              </IdRadio>
+              <IdRadio
+                :checked="!useDefaultSheetWidth"
+                @click="useDefaultSheetWidth = false">
+                <div>Custom</div>
+                <input
+                  class="settings-option__input-inline"
+                  v-model.number="sheetWidthCustom"
+                  :readonly="useDefaultSheetWidth" />
+                <div>px</div>
+                <IdIconButton @click="setCustomSheetWidth()">
+                  <img :src="icon_tick" alt="confirm custom sheet width" />
+                </IdIconButton>
+              </IdRadio>
+            </div>
           </div>
         </section>
 
         <div class="settings__title">Render Settings</div>
+
+        <section>
+          <div>
+            <div class="settings__field">Render Width</div>
+          </div>
+
+          <div>
+            <div class="settings__description">
+              <p>Set the width of the rendered image. The minimum width is 800px.</p>
+            </div>
+
+            <div class="settings__options">
+              <IdRadio
+                :checked="renderWidthType == 'default'"
+                @click="renderWidthType = 'default'">
+                <div>Default <span class="text-sub">(1024px)</span></div>
+              </IdRadio>
+              <IdRadio
+                :checked="renderWidthType == 'sheet-width'"
+                @click="renderWidthType = 'sheet-width'">
+                <div>Use Sheet Width <span class="text-sub">({{ sheetWidth }}px)</span></div>
+              </IdRadio>
+              <IdRadio
+                :checked="renderWidthType == 'custom'"
+                @click="renderWidthType = 'custom'">
+                <div>Custom</div>
+                <input
+                  class="settings-option__input-inline"
+                  v-model.number="renderWidthCustom"
+                  :readonly="renderWidthType != 'custom'" />
+                <div>px</div>
+              </IdRadio>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div>
+            <div class="settings__field">Scale factor</div>
+          </div>
+
+          <div>
+            <div class="settings__description">
+              <p>Set the scale factor of the image.</p>
+              <p>
+                The width of the render result would be
+                {{ renderWidth }}px * {{ scaleFactor }} = {{ renderWidth * scaleFactor }}px.
+              </p>
+            </div>
+
+            <div>
+              <input class="settings-option__input" v-model.number="scaleFactorInput" />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div>
+            <div class="settings__field">Index</div>
+          </div>
+
+          <div>
+            <div class="settings__description">
+              <p>Set if the index (#1, #2...) should be rendered in the result.</p>
+            </div>
+
+            <div class="settings__options">
+              <IdRadio
+                :checked="renderIndex"
+                @click="renderIndex = true">
+                Render
+              </IdRadio>
+              <IdRadio
+                :checked="!renderIndex"
+                @click="renderIndex = false">
+                Hide
+              </IdRadio>
+            </div>
+          </div>
+        </section>
       </section>
 
       <IdButton @click="renderSheet()">Render sheet</IdButton>
@@ -209,15 +336,11 @@ const renderSheet = async () => {
         ref="renderArea"
         class="render-area"
         :style="{ width: `${renderWidth}px` }">
-        <RenderView />
+        <RenderView :render-index="renderIndex" />
       </section>
 
       <section class="render-result__wrapper">
-        <canvas
-          ref="renderResult"
-          class="render-result"
-          :width="renderWidth * scaleFactor"
-          :height="renderHeight * scaleFactor">
+        <canvas ref="renderResult" class="render-result" width="0" height="0">
         </canvas>
       </section>
     </div>
@@ -328,28 +451,45 @@ const renderSheet = async () => {
   & > *:not(:first-child)
     margin-top: 0.5rem
 
+  & > section
+    display: grid
+    grid-template-columns: 1fr 3fr
+    column-gap: 1rem
+
+    @media (max-width: vars.$screen-sm)
+      grid-template-columns: 1fr
+
+    & > *:nth-child(2n + 1)
+      color: var(--color-sub)
+      justify-self: end
+
+      @media (max-width: vars.$screen-sm)
+        justify-self: start
+
 .settings__title
   font-weight: bold
 
-.settings__section
-  display: grid
-  grid-template-columns: 1fr 3fr
-  column-gap: 1rem
+.settings__description
+  margin-top: 0.25rem
+  font-size: 0.875rem
+  margin-bottom: 0.25rem
+  color: var(--color-main-2)
+
+.settings__field
+  min-height: calc(1.75rem + 2px)
+  display: flex
   align-items: center
 
-  & > *:nth-child(2n + 1)
-    justify-self: end
-
-.settings-width
+.settings__options
   display: flex
   align-items: center
   flex-wrap: wrap
   column-gap: 1rem
   row-gap: 0.5rem
 
-.settings-width__input
+.settings-option__input
   min-width: 0
-  width: 6rem
+  width: 10rem
   padding: 0 0.5rem
   height: 1.75rem
   border: 1px solid var(--color-main-2)
@@ -357,6 +497,10 @@ const renderSheet = async () => {
 
   &:read-only
    color: var(--color-gray)
+
+.settings-option__input-inline
+  @extend .settings-option__input
+  width: 6rem
 
 .render-area
   position: fixed
@@ -380,4 +524,8 @@ const renderSheet = async () => {
 .icon-language
   width: 1.5rem
   height: 1.5rem
+
+.text-sub
+  font-size: 0.875rem
+  color: var(--color-sub-2)
 </style>
