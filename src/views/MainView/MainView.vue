@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, nextTick, watch, computed } from 'vue'
+import { onMounted, ref, nextTick } from 'vue'
 import rasterizeHTML from 'rasterizehtml'
 import { saveAs } from 'file-saver'
 import { useEditorStore } from '@/store/editor'
 import useMediaQuery, { SCREEN_LG } from '@/use/mediaQuery'
-import useWidowSize from '@/use/windowSize'
 
 import LanguageManager from './LanguageManager.vue'
 import RowSettings from './RowSettings.vue'
@@ -27,6 +26,7 @@ import icon_language from '@/assets/icons/language.svg'
 import icon_tick from '@/assets/icons/tick.svg'
 
 const editor = useEditorStore()
+const settings = editor.settings
 const rowScroll = ref<HTMLDivElement>()
 
 onMounted(() => {
@@ -41,72 +41,6 @@ const addRow = async () => {
 }
 
 const isLargeScreen = useMediaQuery(`(min-width: ${SCREEN_LG}px)`)
-const { width } = useWidowSize()
-
-const sheetWidthDefault = 1024
-const sheetWidthMin = 800
-const useDefaultSheetWidth = ref<boolean>(true)
-const sheetWidthCustom = ref<number | string>(sheetWidthDefault)
-const sheetWidth = ref<number>(sheetWidthDefault)
-
-const setCustomSheetWidth = () => {
-  if (useDefaultSheetWidth.value || typeof sheetWidthCustom.value == 'string') {
-    return
-  } else if (sheetWidthCustom.value < sheetWidthMin) {
-    sheetWidth.value = sheetWidthMin
-  } else if (sheetWidthCustom.value > width.value) {
-    sheetWidth.value = width.value
-  } else {
-    sheetWidth.value = sheetWidthCustom.value
-  }
-}
-
-watch(useDefaultSheetWidth, (next) => {
-  if (next == true) {
-    sheetWidth.value = sheetWidthDefault
-  } else {
-    setCustomSheetWidth()
-  }
-})
-
-type RenderWidthType = 'default' | 'sheet-width' | 'custom'
-
-const renderWidthDefault = 1024
-const renderWidthMin = sheetWidthMin
-const renderWidthCustom = ref<number | string>(renderWidthDefault)
-const renderWidthType = ref<RenderWidthType>('default')
-
-const renderWidth = computed<number>(() => {
-  if (renderWidthType.value == 'default') {
-    return renderWidthDefault
-  } else if (renderWidthType.value == 'sheet-width') {
-    return sheetWidth.value
-  } else {
-    if (typeof renderWidthCustom.value == 'string') {
-      return renderWidthDefault
-    } else if (renderWidthCustom.value < renderWidthMin) {
-      return renderWidthMin
-    } else {
-      return renderWidthCustom.value
-    }
-  }
-})
-
-const renderHeight = ref<number>(0)
-
-const scaleFactorInput = ref<number | string>(1)
-
-const scaleFactor = computed<number>(() => {
-  if (typeof scaleFactorInput.value == 'string') {
-    return 1
-  } else if (scaleFactorInput.value <= 0) {
-    return 1
-  } else {
-    return scaleFactorInput.value
-  }
-})
-
-const renderIndex = ref<boolean>(true)
 
 const isRendering = ref<boolean>(false)
 const renderArea = ref<HTMLDivElement>()
@@ -124,30 +58,30 @@ const renderSheet = async () => {
     return
   }
 
-  renderHeight.value = renderArea.value.offsetHeight
+  settings.renderHeight = renderArea.value.offsetHeight
   await nextTick()
 
-  renderResult.value.width = renderWidth.value * scaleFactor.value
-  renderResult.value.height = renderHeight.value * scaleFactor.value
+  renderResult.value.width = settings.renderWidth * settings.scaleFactor
+  renderResult.value.height = settings.renderHeight * settings.scaleFactor
 
   const html = /* html */ `
-<head>
-  <style type="text/css">${NormalizeCSS}</style>
-  <style type="text/css">${GlobalStyle}</style>
-  <style type="text/css">${RenderStyle}</style>
-  <style type="text/css">${RenderColorMain}</style>
-</head>
-<body>
-  ${renderArea.value.innerHTML}
-</body>
+<html>
+  <head>
+    <style type="text/css">${NormalizeCSS}</style>
+    <style type="text/css">${GlobalStyle}</style>
+    <style type="text/css">${RenderStyle}</style>
+    <style type="text/css">${RenderColorMain}</style>
+  </head>
+  <body>
+    ${renderArea.value.innerHTML}
+  </body>
+</html>
 `
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const result = await rasterizeHTML.drawHTML(html, renderResult.value, {
-    zoom: scaleFactor.value,
+    zoom: settings.scaleFactor,
   })
-  const ctx = renderResult.value.getContext('2d')!
-  ctx.drawImage(result.image, 0, 0, renderResult.value.width, renderResult.value.height)
 
   await nextTick()
   isRendering.value = false
@@ -175,7 +109,7 @@ const downloadCanvas = () => {
   <main class="editor">
     <div
       class="editor__container"
-      :style="{ width: `${sheetWidth}px` }">
+      :style="{ width: `${settings.sheetWidth}px` }">
       <section class="editor-title">
         <div class="editor-title__sheet">Sheet <b>{{ editor.slot }}</b></div>
         <input
@@ -238,25 +172,25 @@ const downloadCanvas = () => {
           <div>
             <div class="settings__description">
               <p>The width of the sheet.</p>
-              <p>The minimum width is 800px, and the maximum width is the width of the screen ({{ width }}px).</p>
+              <p>The minimum width is 800px, and the maximum width is the width of the screen ({{ settings.width }}px).</p>
             </div>
 
             <div class="settings__options">
               <IdRadio
-                :checked="useDefaultSheetWidth"
-                @click="useDefaultSheetWidth = true">
+                :checked="settings.sheetWidthUseDefault"
+                @click="settings.sheetWidthUseDefault = true">
                 <div>Default <span class="text-sub">(1024px)</span></div>
               </IdRadio>
               <IdRadio
-                :checked="!useDefaultSheetWidth"
-                @click="useDefaultSheetWidth = false">
+                :checked="!settings.sheetWidthUseDefault"
+                @click="settings.sheetWidthUseDefault = false">
                 <div>Custom</div>
                 <input
                   class="settings-option__input-inline"
-                  v-model.number="sheetWidthCustom"
-                  :readonly="useDefaultSheetWidth" />
+                  v-model.number="settings.sheetWidthCustom"
+                  :readonly="settings.sheetWidthUseDefault" />
                 <div>px</div>
-                <IdIconButton @click="setCustomSheetWidth()">
+                <IdIconButton @click="settings.setCustomSheetWidth()">
                   <img :src="icon_tick" alt="confirm custom sheet width" />
                 </IdIconButton>
               </IdRadio>
@@ -278,24 +212,24 @@ const downloadCanvas = () => {
 
             <div class="settings__options">
               <IdRadio
-                :checked="renderWidthType == 'default'"
-                @click="renderWidthType = 'default'">
+                :checked="settings.renderWidthType == 'default'"
+                @click="settings.renderWidthType = 'default'">
                 <div>Default <span class="text-sub">(1024px)</span></div>
               </IdRadio>
               <IdRadio
                 v-if="isLargeScreen"
-                :checked="renderWidthType == 'sheet-width'"
-                @click="renderWidthType = 'sheet-width'">
-                <div>Use Sheet Width <span class="text-sub">({{ sheetWidth }}px)</span></div>
+                :checked="settings.renderWidthType == 'sheet-width'"
+                @click="settings.renderWidthType = 'sheet-width'">
+                <div>Use Sheet Width <span class="text-sub">({{ settings.sheetWidth }}px)</span></div>
               </IdRadio>
               <IdRadio
-                :checked="renderWidthType == 'custom'"
-                @click="renderWidthType = 'custom'">
+                :checked="settings.renderWidthType == 'custom'"
+                @click="settings.renderWidthType = 'custom'">
                 <div>Custom</div>
                 <input
                   class="settings-option__input-inline"
-                  v-model.number="renderWidthCustom"
-                  :readonly="renderWidthType != 'custom'" />
+                  v-model.number="settings.renderWidthCustom"
+                  :readonly="settings.renderWidthType != 'custom'" />
                 <div>px</div>
               </IdRadio>
             </div>
@@ -312,12 +246,12 @@ const downloadCanvas = () => {
               <p>The scale factor of the image.</p>
               <p>
                 The width of the render result would be
-                {{ renderWidth }}px * {{ scaleFactor }} = {{ renderWidth * scaleFactor }}px.
+                {{ settings.renderWidth }}px * {{ settings.scaleFactor }} = {{ settings.renderWidth * settings.scaleFactor }}px.
               </p>
             </div>
 
             <div>
-              <input class="settings-option__input" v-model.number="scaleFactorInput" />
+              <input class="settings-option__input" v-model.number="settings.scaleFactorInput" />
             </div>
           </div>
         </section>
@@ -334,13 +268,13 @@ const downloadCanvas = () => {
 
             <div class="settings__options">
               <IdRadio
-                :checked="renderIndex"
-                @click="renderIndex = true">
+                :checked="settings.renderIndex"
+                @click="settings.renderIndex = true">
                 Render
               </IdRadio>
               <IdRadio
-                :checked="!renderIndex"
-                @click="renderIndex = false">
+                :checked="!settings.renderIndex"
+                @click="settings.renderIndex = false">
                 Hide
               </IdRadio>
             </div>
@@ -358,8 +292,8 @@ const downloadCanvas = () => {
         v-if="isRendering"
         ref="renderArea"
         class="render-area"
-        :style="{ width: `${renderWidth}px` }">
-        <RenderView :render-index="renderIndex" />
+        :style="{ width: `${settings.renderWidth}px` }">
+        <RenderView :render-index="settings.renderIndex" />
       </section>
 
       <section class="render-result">

@@ -4,6 +4,7 @@ import { throttle } from 'lodash-es'
 import Logger from 'reggol'
 import { db, type NicatFile } from './db'
 import { useLangStore } from './lang'
+import { useSettingsStore } from './settings'
 import type { Block } from '@/types'
 
 const log = new Logger('editor-store')
@@ -14,6 +15,7 @@ export const useEditorStore = defineStore('editor', () => {
   const content = shallowRef<Block[]>([])
 
   const langs = useLangStore()
+  const settings = useSettingsStore()
 
   const empty = () => {
     return Object.fromEntries(Object.values(langs.dict).map((lang) => [lang, '']))
@@ -116,6 +118,7 @@ export const useEditorStore = defineStore('editor', () => {
       slot: toValue(slot),
       name: toValue(name),
       langs: langs.raw(),
+      settings: settings.raw(),
       content: toValue(content),
     }
   }
@@ -124,6 +127,8 @@ export const useEditorStore = defineStore('editor', () => {
     slot.value = to ?? file.slot
     name.value = file.name
     langs.restore(file.langs)
+    settings.restore(file.settings)
+
     content.value = file.content
 
     localStorage.setItem('slot', slot.value.toString())
@@ -201,6 +206,7 @@ export const useEditorStore = defineStore('editor', () => {
     slotChange,
     name,
     langs,
+    settings,
     content,
     rowInsert,
     rowRemove,

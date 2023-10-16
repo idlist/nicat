@@ -13,6 +13,7 @@
   "dependencies": {
     "dexie": "^3.2.4",
     "file-saver": "^2.0.5",
+    "html-screen-capture-js": "^2.0.5",
     "lodash-es": "^4.17.21",
     "normalize.css": "^8.0.1",
     "pinia": "^2.1.6",

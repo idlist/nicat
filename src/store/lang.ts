@@ -1,7 +1,12 @@
 import { ref, toRaw, toValue } from 'vue'
 import { defineStore } from 'pinia'
 import { useEditorStore } from './editor'
-import type { RawLangData } from '@/types'
+
+export interface RawLangData {
+  id: number
+  dict: Record<string, string>
+  order: number[]
+}
 
 export const useLangStore = defineStore('lang', () => {
   const id = ref<number>(1)
