@@ -166,7 +166,7 @@ onMounted(() => {
           href="https://github.com/cburgmer/rasterizeHTML.js/issues/69"
           target="_blank"
           noreferer noopener>rasterizeHTML.js#69</a>),
-        which might cause the output image to not having any text.
+        which might cause the output image not to have any text.
       </p>
       <p>
         Please try clicking (or pressing) the button more than once

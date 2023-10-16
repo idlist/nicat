@@ -6,6 +6,8 @@ import InlineIconSheet from '@/assets/icons-inline/sheet.svg?raw'
 import InlineIconNicat from '@/assets/icons-inline/nicat.svg?raw'
 import { computed } from 'vue'
 
+import '@/styles/render.sass'
+
 const editor = useEditorStore()
 
 const props = defineProps<{
