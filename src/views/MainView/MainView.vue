@@ -151,7 +151,6 @@ const downloadCanvas = () => {
 
       <SettingsView />
 
-
       <section class="render-button">
         <IdButton size="large" @click="renderSheet()">
           Render Sheet

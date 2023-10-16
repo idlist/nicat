@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { detect } from 'detect-browser'
 import useMediaQuery, { SCREEN_LG } from '@/use/mediaQuery'
 import { useEditorStore } from '@/store/editor'
 
@@ -13,6 +15,15 @@ import icon_tick from '@/assets/icons/tick.svg'
 const isLargeScreen = useMediaQuery(`(min-width: ${SCREEN_LG}px)`)
 const editor = useEditorStore()
 const settings = editor.settings
+
+const isApple = ref<boolean>(false)
+
+onMounted(() => {
+  const info = detect()
+  if (info?.name.includes('ios') || info?.name == 'safari') {
+    isApple.value = true
+  }
+})
 </script>
 
 <template>
@@ -29,7 +40,10 @@ const settings = editor.settings
       <div>
         <div class="settings__description">
           <p>The width of the sheet.</p>
-          <p>The minimum width is 800px, and the maximum width is the width of the screen ({{ settings.width }}px).</p>
+          <p>
+            The minimum width is 800px, and the maximum width
+            is the width of the screen ({{ settings.width }}px).
+          </p>
         </div>
 
         <div class="settings__options">
@@ -103,7 +117,8 @@ const settings = editor.settings
           <p>The scale factor of the image.</p>
           <p>
             The width of the render result would be
-            {{ settings.renderWidth }}px * {{ settings.scaleFactor }} = {{ settings.renderWidth * settings.scaleFactor }}px.
+            {{ settings.renderWidth }}px * {{ settings.scaleFactor }} =
+            {{ settings.renderWidth * settings.scaleFactor }}px.
           </p>
         </div>
 
@@ -137,6 +152,27 @@ const settings = editor.settings
         </div>
       </div>
     </section>
+
+
+    <div class="settings-warning" v-if="isApple">
+      <div class="settings-warning__bar"></div>
+      <div class="settings-warning__title">
+        Warning on macOS / iOS Safari:
+      </div>
+      <p>
+        it seems like Safari (or maybe just iOS Safari) has an issue when
+        converting custom webfonts to inline resources
+        (<a
+          href="https://github.com/cburgmer/rasterizeHTML.js/issues/69"
+          target="_blank"
+          noreferer noopener>rasterizeHTML.js#69</a>),
+        which might cause the output image to not having any text.
+      </p>
+      <p>
+        Please try clicking (or pressing) the button more than once
+        to get the correct output.
+      </p>
+    </div>
   </section>
 </template>
 
@@ -201,4 +237,36 @@ const settings = editor.settings
 .settings-option__input-inline
   @extend .settings-option__input
   width: 6rem
+
+.settings-warning
+  position: relative
+  padding: 0.75rem 1rem
+  border-radius: 0.5rem
+  color: var(--color-yellow)
+  background-color: var(--color-yellow-3)
+  overflow: hidden
+
+  & > p:not(:first-child)
+    line-height: 1.5rem
+    margin-top: 0.5rem
+
+  & a
+    font-style: italic
+    color: var(--color-yellow)
+
+    &:hover
+      color: var(--color-yellow-2)
+
+.settings-warning__bar
+  position: absolute
+  top: 0
+  bottom: 0
+  left: 0
+  right: 0
+  border-left: 4px solid var(--color-yellow)
+  pointer-events: none
+
+.settings-warning__title
+  font-weight: bold
+  margin-bottom: 0.5rem
 </style>

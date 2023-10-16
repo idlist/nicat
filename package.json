@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "detect-browser": "^5.3.0",
     "dexie": "^3.2.4",
     "file-saver": "^2.0.5",
     "html-screen-capture-js": "^2.0.5",
