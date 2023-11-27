@@ -91,6 +91,7 @@ const moveTo = ref<number | string>('')
 <style lang="sass" scoped>
 .row-settings
   position: relative
+  z-index: 10
 
 .row-settings__popup-button
   display: flex
